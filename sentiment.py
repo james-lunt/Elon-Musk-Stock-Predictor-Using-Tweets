@@ -1,26 +1,25 @@
 import numpy as np
 import pandas as pd
-import seaborn as sns
 pd.options.mode.chained_assignment = None  # default='warn'
 from sklearn.metrics import roc_curve, roc_auc_score
 import matplotlib.pyplot as plt
 
 ##### Reading in the Data #####
-df = pd.read_csv(r"C:\Users\Niall Groves\Desktop\MachineLA\GroupAssignment\elonTestData.csv")
-x = df.iloc [:,0]
-y = df.iloc [:,1]
+df = pd.read_csv("elon_musk_tweets.csv", skiprows=0)
+tweet_contents = df.iloc [:,1]
+likes = df.iloc [:,2]
 
 ##### Getting Median of the Likes #####
-median = np.median(y)
+median = np.median(likes)
 #print("Median: ", median)
 
 ##### Assigning if Tweet is Positive or Negative Based on the Mean #####
 i = 0
-for num in y:
-    if y[i] >= median:
-        y[i] = 1
+for num in likes:
+    if likes[i] >= median:
+        likes[i] = 1
     else:
-        y[i] = 0
+        likes[i] = 0
     i = i + 1
 i = 0
 
@@ -28,7 +27,7 @@ i = 0
 ##### Creating a Bag of Words #####
 from sklearn.feature_extraction.text import CountVectorizer
 count_vect = CountVectorizer(stop_words='english')          #brought down to 527 from 638
-X_train_counts = count_vect.fit_transform(x)
+X_train_counts = count_vect.fit_transform(tweet_contents)
 #print(X_train_counts)
 
 ##### Tones down the weight applied to very frequent words #####
@@ -55,13 +54,13 @@ weights = (0.01, 0.1, 1, 10)
 repeats = range(5,10)
 best_mean = 100
 results = list()
-#for loop to loop through penalyt choice
-#for loop to cycle through differnt penalyt weights
+#for loop to loop through penalty choice
+#for loop to cycle through differnt penalty weights
 #for loop to cycle through kfold
 model = LogisticRegression()
 for r in repeats:
     cv = RepeatedKFold(n_splits=5, n_repeats=r, random_state=1)
-    scores = cross_val_score(model, X_train_tf, y, scoring='accuracy', cv=cv, n_jobs=-1)
+    scores = cross_val_score(model, X_train_tf, likes, scoring='accuracy', cv=cv, n_jobs=-1)
     #print('Accuracy: %.3f (%.3f)' % (mean(scores), std(scores)))
     if(mean(scores) <= best_mean):
         best_mean = mean(scores)
@@ -94,7 +93,7 @@ for c in weights:
     model = LogisticRegression(penalty = penalty[2], C = c)
     for r in repeats:
         cv = RepeatedKFold(n_splits=5, n_repeats=r, random_state=1)
-        scores = cross_val_score(model, X_train_tf, y, scoring='accuracy', cv=cv, n_jobs=-1)
+        scores = cross_val_score(model, X_train_tf, likes, scoring='accuracy', cv=cv, n_jobs=-1)
         #print('Accuracy: %.3f (%.3f)' % (mean(scores), std(scores)))
         if(mean(scores) <= best_mean):
             best_mean = mean(scores)
