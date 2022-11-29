@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import csv
 import math
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -70,15 +71,21 @@ sentiments_data_set = dict()
 for i in range(len(dates)):
     sentiments_data_set[dates[i]] = likes[i]
 
-#Match date and sentiment value with stock return
-dataset = []
-for i in range(len(stock_return_dates)):
-    try:
-        dataset.append((stock_return_dates[i], sentiments_data_set[stock_return_dates[i]], stock_return[i]))
-    except:
-        pass 
 
-print(dataset)
+fields = ["Date", "Sentiment", "Stock Return"]
+with open("Dataset.csv", 'w', newline='', encoding='utf-8') as csvfile: 
+    # creating a csv writer object 
+    csvwriter = csv.writer(csvfile)     
+    # writing the fields 
+    csvwriter.writerow(fields)
+
+    #Match date and sentiment value with stock return
+    for i in range(len(stock_return_dates)):
+        try:
+            csvwriter.writerow([stock_return_dates[i], sentiments_data_set[stock_return_dates[i]], stock_return[i]])
+        except:
+            pass 
+
 
 
 
