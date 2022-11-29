@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import csv
-import math
+import statistics as s
 pd.options.mode.chained_assignment = None  # default='warn'
 
 ##### Train Sentiment Value model #####
@@ -9,11 +9,34 @@ df = pd.read_csv("elon_musk_tweets.csv", skiprows=0)
 dates =df.iloc[:,0]
 tweet_contents = df.iloc [:,1]
 likes = df.iloc [:,2]
+retweets = df.iloc[:,3]
 
-# Getting Median of the Likes
-median = np.median(likes)
+#split = [10,100,1000]
+#for n in split:
+n = 10
+quantiles_likes = s.quantiles(likes, n=n)
+print("Quantiles: " + str(quantiles_likes))
 
-# Assigning if Tweet is Positive or Negative Based on the Mean
+n = len(quantiles_likes)-1
+print(n)
+#Weight retweet between 0 and 2 based on likes
+for j in range(len(retweets)):
+    for i in range(n):
+        if i == n:
+            retweets[j] = retweets[j]*2
+            print(2)
+            break
+        elif (likes[j] > quantiles_likes[i] and likes[j] < quantiles_likes[i+1]):
+            print((i/n)*2)
+            retweets[j] = retweets[j]*((i+2/n)*2)
+            #print(retweets[j])
+            break
+
+### TODO Need to fix when like is in lowest interquantile range as it's setting to 0
+
+## TODO After adding retweets x weight and likes, sort array 
+
+"""
 i = 0
 for num in likes:
     if likes[i] >= median:
@@ -22,6 +45,7 @@ for num in likes:
         likes[i] = 0
     i = i + 1
 i = 0
+"""
 
 # If tweets land on the same day then set sentiment value to average sentiment value of tweets on that day
 current_date = dates[0]
