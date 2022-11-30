@@ -13,56 +13,82 @@ retweets = df.iloc[:,3]
 
 #split = [10,100,1000]
 #for n in split:
-n = 10
+n=10
 quantiles_likes = s.quantiles(likes, n=n)
 print("Quantiles: " + str(quantiles_likes))
 
-n = len(quantiles_likes)-1
-print(n)
+
 #Weight retweet between 0 and 2 based on likes
-for j in range(len(retweets)):
-    for i in range(n):
-        if i == n:
-            retweets[j] = retweets[j]*2
-            print(2)
-            break
-        elif (likes[j] > quantiles_likes[i] and likes[j] < quantiles_likes[i+1]):
-            print((i/n)*2)
-            retweets[j] = retweets[j]*((i+2/n)*2)
-            #print(retweets[j])
-            break
+n = len(quantiles_likes)
+weight_scores_size = n+1
 
-### TODO Need to fix when like is in lowest interquantile range as it's setting to 0
-
-## TODO After adding retweets x weight and likes, sort array 
-
-"""
-i = 0
-for num in likes:
-    if likes[i] >= median:
-        likes[i] = 1
+index = 0
+for like in likes:
+    if like <= quantiles_likes[0]:
+        retweets[index] = retweets[index]*((1/weight_scores_size)*2)
+    elif like >= quantiles_likes[n-1]:
+        retweets[index] = retweets[index]*(2)
     else:
-        likes[i] = 0
-    i = i + 1
-i = 0
-"""
+        count = 0
+        for quantile_like in quantiles_likes:
+            if like <= quantiles_likes[count]:
+                retweets[index] = retweets[index]*(((count+1)/weight_scores_size)*2)
+                break
+            count +=1
+    index+=1
+
+# Now add likes and weighted retweets to equal a sentiment value 
+sentiments = likes
+for i in range(len(likes)):
+    sentiments[i] = likes[i] + retweets[i] 
+
+
+# Find interquantile range
+#split = [10,100,1000]
+#for n in split:
+n = 10
+quantiles_sentiments = s.quantiles(sentiments, n=n)
+print("Quantiles: " + str(quantiles_sentiments))
+
+# Classify sentiment value based on interquantile
+n = len(quantiles_sentiments)
+weight_scores_size = n+1
+
+print(sentiments)
+index = 0
+for sentiment in sentiments:
+    if sentiment <= quantiles_sentiments[0]:
+        sentiments[index] = 1
+    elif sentiment >= quantiles_sentiments[n-1]:
+        sentiments[index] = weight_scores_size
+    else:
+        count = 0
+        for quantile_sentiment in quantiles_sentiments:
+            if sentiment<= quantiles_sentiments[count]:
+                sentiments[index] = count+1 
+                break
+            count +=1
+    index+=1
+print(sentiments)
+
+
 
 # If tweets land on the same day then set sentiment value to average sentiment value of tweets on that day
 current_date = dates[0]
-sentiments = []
+sentiment_array = []
 daily_tweet_count = 0
 for i in range(len(dates)):
     if dates[i] != current_date:
         for j in range(daily_tweet_count):
-            likes[i-j-1] = round(np.average(sentiments))
+            sentiments[i-j-1] = round(np.average(sentiment_array))
         current_date = dates[i]
-        sentiments =[]
+        sentiment_array =[]
         daily_tweet_count = 0
         daily_tweet_count += 1
-        sentiments.append(likes[i])
+        sentiment_array.append(sentiments[i])
     else:
         daily_tweet_count += 1
-        sentiments.append(likes[i])
+        sentiment_array.append(sentiments[i])
 
 
 # Getting Rid of Stop Words
@@ -81,7 +107,7 @@ X_train_tf = tf_transformer.transform(X_train_counts)
 from sklearn.linear_model import LogisticRegression
 
 sentiment_model = LogisticRegression()
-sentiment_model.fit(X_train_tf,likes)
+sentiment_model.fit(X_train_tf,sentiments)
 
 ## Train stock return model ##
 
@@ -93,11 +119,11 @@ stock_return = df.iloc [:,1]
 #Create dictionary of average sentiment values for each date
 sentiments_data_set = dict()
 for i in range(len(dates)):
-    sentiments_data_set[dates[i]] = likes[i]
+    sentiments_data_set[dates[i]] = sentiments[i]
 
 
 fields = ["Date", "Sentiment", "Stock Return"]
-with open("Dataset.csv", 'w', newline='', encoding='utf-8') as csvfile: 
+with open("Dataset1.csv", 'w', newline='', encoding='utf-8') as csvfile: 
     # creating a csv writer object 
     csvwriter = csv.writer(csvfile)     
     # writing the fields 
@@ -109,7 +135,4 @@ with open("Dataset.csv", 'w', newline='', encoding='utf-8') as csvfile:
             csvwriter.writerow([stock_return_dates[i], sentiments_data_set[stock_return_dates[i]], stock_return[i]])
         except:
             pass 
-
-
-
 
