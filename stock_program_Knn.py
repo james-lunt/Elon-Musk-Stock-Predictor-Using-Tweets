@@ -36,11 +36,6 @@ def increase_decrease(stock,ypred,keys):
 
     print(same/len(keys))
 
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import mean_squared_error
-
-
 #Cross validate
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import KFold
@@ -97,7 +92,8 @@ def results(y_pred, y_targets,keys):
     plt.plot(dollar_range,accuracies)
     plt.show()
 
-    increase_decrease(stock,ypred,keys)
+    increase_decrease(y_targets,ypred,keys)
+    #This MightBreak
 
 
 results(ypred,stock,y_te.keys())
