@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 import csv
 import statistics as s
+import time
 pd.options.mode.chained_assignment = None  # default='warn'
 
 ##### Train Sentiment Value model #####
-df = pd.read_csv("elon_musk_tweets.csv", skiprows=0)
+df = pd.read_csv("elon_musk_tweets_test.csv", skiprows=0)
 dates =df.iloc[:,0]
 tweet_contents = df.iloc [:,1]
 likes = df.iloc [:,2]
@@ -13,7 +14,7 @@ retweets = df.iloc[:,3]
 
 #split = [10,100,1000]
 #for n in split:
-n=10
+n=100
 quantiles_likes = s.quantiles(likes, n=n)
 print("Quantiles: " + str(quantiles_likes))
 
@@ -54,7 +55,6 @@ print("Quantiles: " + str(quantiles_sentiments))
 n = len(quantiles_sentiments)
 weight_scores_size = n+1
 
-print(sentiments)
 index = 0
 for sentiment in sentiments:
     if sentiment <= quantiles_sentiments[0]:
@@ -69,7 +69,6 @@ for sentiment in sentiments:
                 break
             count +=1
     index+=1
-print(sentiments)
 
 
 
@@ -112,7 +111,7 @@ sentiment_model.fit(X_train_tf,sentiments)
 ## Train stock return model ##
 
 #Parse stock dates and average daily stock return
-df = pd.read_csv("tesla_stock_return.csv", skiprows=0)
+df = pd.read_csv("tesla_stock_return_Test.csv", skiprows=0)
 stock_return_dates = df.iloc[:,0]
 stock_return = df.iloc [:,1]
 
@@ -123,7 +122,7 @@ for i in range(len(dates)):
 
 
 fields = ["Date", "Sentiment", "Stock Return"]
-with open("Dataset1.csv", 'w', newline='', encoding='utf-8') as csvfile: 
+with open("Dataset_Test.csv", 'w', newline='', encoding='utf-8') as csvfile: 
     # creating a csv writer object 
     csvwriter = csv.writer(csvfile)     
     # writing the fields 

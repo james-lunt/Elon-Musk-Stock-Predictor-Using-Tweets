@@ -2,8 +2,8 @@ import snscrape.modules.twitter as sntwitter
 import csv
 
 #Query elon musks tweets from 16/11/2017 until 16/11/2022
-query = "(from:elonmusk) until:2022-11-16 since:2017-11-16 -filter:replies"
-csv_output = "elon_musk_tweets.csv"
+query = "(from:elonmusk) until:2022-11-30 since:2022-11-16 -filter:replies"
+csv_output = "elon_musk_tweets_test.csv"
 fields = ['Date','Tweet','Likes','Retweets']
 
 with open(csv_output, 'w', newline='', encoding='utf-8') as csvfile: 

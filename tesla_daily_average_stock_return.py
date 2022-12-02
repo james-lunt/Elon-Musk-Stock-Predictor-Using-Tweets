@@ -6,8 +6,9 @@ df = pd.read_csv("TSLA.csv",skiprows=0)
 Date = df.iloc[:,0]
 Open = df.iloc[:,1]
 Close = df.iloc[:4]
+print(Date)
 
-csv_output = "tesla_stock_return.csv"
+csv_output = "tesla_stock_return_Test.csv"
 fields = ['Date','Average Stock Return']
 
 with open(csv_output, 'w', newline='') as csvfile:
