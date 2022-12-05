@@ -6,7 +6,7 @@ import time
 pd.options.mode.chained_assignment = None  # default='warn'
 
 ##### Train Sentiment Value model #####
-df = pd.read_csv("elon_musk_tweets_test.csv", skiprows=0)
+df = pd.read_csv("elon_musk_tweets.csv", skiprows=0)
 dates =df.iloc[:,0]
 tweet_contents = df.iloc [:,1]
 likes = df.iloc [:,2]
@@ -49,7 +49,7 @@ for i in range(len(likes)):
 #for n in split:
 n = 10
 quantiles_sentiments = s.quantiles(sentiments, n=n)
-print("Quantiles: " + str(quantiles_sentiments))
+
 
 # Classify sentiment value based on interquantile
 n = len(quantiles_sentiments)
@@ -104,25 +104,34 @@ X_train_tf = tf_transformer.transform(X_train_counts)
 
 # Training tweet sentiment model
 from sklearn.linear_model import LogisticRegression
-
-sentiment_model = LogisticRegression()
-sentiment_model.fit(X_train_tf,sentiments)
+from sklearn.model_selection import train_test_split
+X_tr, X_te,y_tr, y_te = train_test_split(X_train_tf,sentiments,shuffle=True,test_size=0.3)
+sentiment_model = LogisticRegression(penalty = 'l2', C = 20, max_iter=1000)
+sentiment_model.fit(X_tr,y_tr)
+ypred = sentiment_model.predict(X_te)
+print(ypred)
 
 ## Train stock return model ##
-
+index = 0
+sentiments_data_set = dict()
+for i in y_te.keys():
+    sentiments_data_set[dates[i]] = ypred[index]
+    index+=1
+print(len(sentiments_data_set))
 #Parse stock dates and average daily stock return
-df = pd.read_csv("tesla_stock_return_Test.csv", skiprows=0)
+df = pd.read_csv("tesla_stock_return.csv", skiprows=0)
 stock_return_dates = df.iloc[:,0]
 stock_return = df.iloc [:,1]
 
+"""
 #Create dictionary of average sentiment values for each date
 sentiments_data_set = dict()
 for i in range(len(dates)):
     sentiments_data_set[dates[i]] = sentiments[i]
-
+"""
 
 fields = ["Date", "Sentiment", "Stock Return"]
-with open("Dataset_Test.csv", 'w', newline='', encoding='utf-8') as csvfile: 
+with open("Dataset_Sentiment_Predictions.csv", 'w', newline='', encoding='utf-8') as csvfile: 
     # creating a csv writer object 
     csvwriter = csv.writer(csvfile)     
     # writing the fields 
@@ -134,4 +143,5 @@ with open("Dataset_Test.csv", 'w', newline='', encoding='utf-8') as csvfile:
             csvwriter.writerow([stock_return_dates[i], sentiments_data_set[stock_return_dates[i]], stock_return[i]])
         except:
             pass 
+
 

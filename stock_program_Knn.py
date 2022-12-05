@@ -11,7 +11,7 @@ def convert_to_timestamp(dates):
 
 
 #Training data
-df = pd.read_csv("Dataset1.csv", skiprows=0)
+df = pd.read_csv("Dataset_Sentiment_Predictions.csv", skiprows=0)
 date =df.iloc[:,0]
 sentiment = df.iloc [:,1]
 convert_to_timestamp(date)
@@ -34,6 +34,7 @@ def increase_decrease(stock,ypred,keys):
         if((stock[j+1] - stock[j] < 0 and ypred[j+1] - ypred[j] < 0) or (stock[j+1] - stock[j] > 0 and ypred[j+1] - ypred[j] > 0)):
             same+=1
 
+    #PRint increase/decrease accuracy
     print(same/len(keys))
 
 #Cross validate
@@ -57,7 +58,7 @@ for n in neighbor_range:
 #plot
 plt.errorbar(neighbor_range,mean_error,yerr=std_error)
 plt.xlabel('NN'); plt.ylabel("Mean square error")
-plt.title("KNN Hyperparameter Cross-Validation")
+plt.title("KNN Hyperparameter Cross-Validation With Sentiment Predicted")
 plt.show()
 
 
@@ -67,7 +68,7 @@ from sklearn.model_selection import train_test_split
 X_tr, X_te,y_tr, y_te = train_test_split(X,stock,shuffle=True)
 
 #Train
-model = KNeighborsRegressor(n_neighbors=3,weights="distance").fit(X_tr,y_tr)
+model = KNeighborsRegressor(n_neighbors=5,weights="uniform").fit(X_tr,y_tr)
 
 #Predict
 ypred = model.predict(X)
@@ -75,7 +76,7 @@ ypred = model.predict(X)
 
 def results(y_pred, y_targets,keys):
     plt.xlabel('Dollars ($)')
-    plt.ylabel('Prediction')
+    plt.ylabel('Prediction Accuracy')
     accuracies = []
     dollar_range = [0,1,2,3,4,5,6,7,8,9,10]
 
@@ -90,6 +91,7 @@ def results(y_pred, y_targets,keys):
 
 
     plt.plot(dollar_range,accuracies)
+    plt.title("kNN Accuracy With Predicted Sentiments. Weights=uniform. K=5")
     plt.show()
 
     increase_decrease(y_targets,ypred,keys)

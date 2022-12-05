@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
 
-df = pd.read_csv("Dataset1.csv", skiprows=0)
+df = pd.read_csv("Dataset10Quantines.csv", skiprows=0)
 date =df.iloc[:,0]
 sentiment = df.iloc [:,1]
 #Convert date to float timestamp
