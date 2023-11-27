@@ -11,13 +11,14 @@ def convert_to_timestamp(dates):
 
 
 #Training data
-df = pd.read_csv("Dataset_Sentiment_Predictions.csv", skiprows=0)
+df = pd.read_csv("Dataset10Quantines.csv", skiprows=0)
 date =df.iloc[:,0]
 sentiment = df.iloc [:,1]
 convert_to_timestamp(date)
 X=np.column_stack((date,sentiment)) 
 stock = df.iloc [:,2]
 
+"""
 #Test data for geralising
 df = pd.read_csv("Dataset_Test.csv", skiprows=0)
 date_test =df.iloc[:,0]
@@ -25,6 +26,7 @@ sentiment_test = df.iloc [:,1]
 convert_to_timestamp(date_test)
 X_test=np.column_stack((date_test,sentiment_test)) 
 stock_test = df.iloc [:,2]
+"""
 
 
 #Calculatestock increase / decrease
@@ -44,7 +46,7 @@ from sklearn.metrics import mean_squared_error
 mean_error=[]; std_error=[]
 neighbor_range  = [1,2,3,4,5,6,7,8]
 for n in neighbor_range:
-    model = KNeighborsRegressor(n_neighbors=n,weights="distance").fit(X,stock)
+    model = KNeighborsRegressor(n_neighbors=n,weights="uniform").fit(X,stock)
     temp=[]
     kf = KFold(n_splits=5)
     for train, test in kf.split(X):
@@ -68,7 +70,7 @@ from sklearn.model_selection import train_test_split
 X_tr, X_te,y_tr, y_te = train_test_split(X,stock,shuffle=True)
 
 #Train
-model = KNeighborsRegressor(n_neighbors=5,weights="uniform").fit(X_tr,y_tr)
+model = KNeighborsRegressor(n_neighbors=3,weights="distance").fit(X_tr,y_tr)
 
 #Predict
 ypred = model.predict(X)
